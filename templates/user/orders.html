@@ -1,0 +1,113 @@
+{% extends 'base_include/base.html' %}
+{% load static %}
+{% block main %}
+    <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
+
+        <button class="btn navbar-toggler-humburger-icon navbar-toggler me-1 me-sm-3" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse"
+                aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
+            <span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
+        <a class="navbar-brand me-1 me-sm-3" href="">
+            <div class="d-flex align-items-center"><img class="me-2"
+                                                        src="{% static "assets/img/icons/spot-illustrations/falcon.png" %}"
+                                                        alt="" width="40"/><span
+                    class="font-sans-serif">falcon</span>
+            </div>
+        </a>
+        <ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
+            <li class="nav-item">
+                <div class="theme-control-toggle fa-icon-wait px-2">
+                    <input class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle"
+                           type="checkbox" data-theme-control="theme" value="dark"/>
+                    <label class="mb-0 theme-control-toggle-label theme-control-toggle-light"
+                           for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
+                           title="Switch to light theme"><span class="fas fa-sun fs-0"></span></label>
+                    <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark"
+                           for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
+                           title="Switch to dark theme"><span class="fas fa-moon fs-0"></span></label>
+                </div>
+            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                       href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                     data-fa-transform="shrink-7"
+                                                     style="font-size: 33px;"></span><span
+                            class="notification-indicator-number">1</span></a>
+
+                </li>
+            {% endif %}
+            <li class="nav-item dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
+                                             role="button" data-bs-toggle="dropdown" aria-haspopup="true"
+                                             aria-expanded="false">
+                <div class="avatar avatar-xl">
+                    <img class="rounded-circle" src="{% static "assets/img/team/avatar.png" %}" alt=""/>
+
+                </div>
+            </a>
+                <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="navbarDropdownUser">
+                    <div class="bg-white dark__bg-1000 rounded-2 py-2">
+                        <div class="dropdown-divider"></div>
+                        {% if user.is_authenticated %}
+                            <a class="dropdown-item" href="{% url 'profile' user.id %}">Profil</a>
+                            <a class="dropdown-item"
+                               href="{% url 'logout' %}">Chiqish</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'login' %}">Kirish</a>
+                            <a class="dropdown-item"
+                               href="{% url 'register' %}">Ro'yxatdan o'tish</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                    <span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% for order in orders %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Order Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <h6 class="text-secondary">Order Time:</h6>
+                        <p class="text-dark mb-2">{{ order.created_at }}</p>
+                        <span class="badge bg-success">{{ order.status }}</span>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h6 class="text-secondary">Order Status:</h6>
+                        <p class="text-dark">{{ order.status }}</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h6 class="text-secondary">Total Price:</h6>
+                        <p class="text-dark fw-bold">{{ order.total }} UZS</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <button class="btn btn-outline-primary btn-sm">View Details</button>
+                    {% if order.status == 'In process' %}
+                        <a href="{% url 'cancel-order' order.id %}">
+                            <button class="btn btn-outline-danger btn-sm">Cancel Order</button>
+                        </a>
+                        <form action="{% url 'cancel-order' order.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">Delivered</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

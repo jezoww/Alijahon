@@ -1,0 +1,191 @@
+{% extends 'base_include/base.html' %}
+{% load static %}
+{% block main %}
+    <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
+
+        <button class="btn navbar-toggler-humburger-icon navbar-toggler me-1 me-sm-3" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse"
+                aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
+            <span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
+        <a class="navbar-brand me-1 me-sm-3" href="">
+            <div class="d-flex align-items-center"><img class="me-2"
+                                                        src="{% static "assets/img/icons/spot-illustrations/falcon.png" %}"
+                                                        alt="" width="40"/><span
+                    class="font-sans-serif">falcon</span>
+            </div>
+        </a>
+        <ul class="navbar-nav align-items-center d-none d-lg-block">
+            <li class="nav-item">
+                <div class="search-box" data-list='{"valueNames":["title"]}'>
+                    <form method="post" class="position-relative" data-bs-toggle="search" data-bs-display="static">
+                        {% csrf_token %}
+                        <input name="search" class="form-control search-input fuzzy-search" type="search"
+                               placeholder="Search..." aria-label="Search"/>
+                        <span class="fas fa-search search-box-icon"><button type="submit"></button></span>
+                    </form>
+                </div>
+            </li>
+        </ul>
+        <ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
+            <li class="nav-item">
+                <div class="theme-control-toggle fa-icon-wait px-2">
+                    <input class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle"
+                           type="checkbox" data-theme-control="theme" value="dark"/>
+                    <label class="mb-0 theme-control-toggle-label theme-control-toggle-light"
+                           for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
+                           title="Switch to light theme"><span class="fas fa-sun fs-0"></span></label>
+                    <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark"
+                           for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
+                           title="Switch to dark theme"><span class="fas fa-moon fs-0"></span></label>
+                </div>
+            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                       href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                     data-fa-transform="shrink-7"
+                                                     style="font-size: 33px;"></span><span
+                            class="notification-indicator-number">{{ cart_items_count }}</span></a>
+
+                </li>
+            {% endif %}
+            <li class="nav-item dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
+                                             role="button" data-bs-toggle="dropdown" aria-haspopup="true"
+                                             aria-expanded="false">
+                <div class="avatar avatar-xl">
+                    <img class="rounded-circle" src="{% static "assets/img/team/avatar.png" %}" alt=""/>
+
+                </div>
+            </a>
+                <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="navbarDropdownUser">
+                    <div class="bg-white dark__bg-1000 rounded-2 py-2">
+                        <div class="dropdown-divider"></div>
+                        {% if user.is_authenticated %}
+                            <a class="dropdown-item" href="{% url 'profile' user.id %}">Profil</a>
+                            <a class="dropdown-item"
+                               href="{% url 'logout' %}">Chiqish</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'login' %}">Kirish</a>
+                            <a class="dropdown-item"
+                               href="{% url 'register' %}">Ro'yxatdan o'tish</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                    <span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Facebook dan olingan lidlarni yuklash</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" class="form-class" action="/admin_page/upload-csv"
+                                  enctype="multipart/form-data">
+                                <input type="hidden" name="csrfmiddlewaretoken"
+                                       value="xnLxiwYon0xqnYrYsds4aH8btPnvrPGUMYOqOwWnC6x5SL6w4RLNG0GnegXxI4TQ">
+                                <input name="stream_id" type="hidden" id="hidden_stream_id">
+                                <input name="file" type="file" accept=".csv" required="">
+                                <input type="submit" class="btn btn-primary mt-4" value="Csv fayl yuklash">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <br>
+                <h3 class="text-center"> Mening havolalarim </h3>
+                <br>
+
+                <div class="row">
+                    {% for thread in threads %}
+                        <div class="col-sm-4">
+                            <div class="card-header">
+                                <!-- <a href="#" onclick="myFunction(78812)" data-request="onDeleteStream"
+                            data-request-data="'id': 78812, 'csrftoken':xnLxiwYon0xqnYrYsds4aH8btPnvrPGUMYOqOwWnC6x5SL6w4RLNG0GnegXxI4TQ"
+                            data-request-flash="" data-request-success="$(this).closest('.col-sm-4').remove()"
+                            data-request-confirm="Siz rostdan ham oqimni o'chirmoqchimisiz?" class="text-danger"
+                            style="float: right"> <span class="fa fa-trash" aria-hidden="true"></span> </a> -->
+
+                                <h5>{{ thread.title }}</h5>
+
+
+                                <h5>- {{ thread.discount }}</h5>
+
+                            </div>
+                            <div class="card">
+                                <div class="card-body" style="position: relative;">
+                                    <div class="form-group">
+                                        <input type="text" value="http://127.0.0.1:8000/thread/{{ thread.id }}"
+                                               readonly=""
+                                               class="ref_link form-control copy-input">
+                                    </div>
+                                    <p class="mt-2 text-muted">{{ thread.sold }} ta sotildi.</p>
+                                    <button class="copy_ref_bn btn btn-primary"
+                                            style="float:left; margin-right:9px; margin-top: 9px;">Nusxa ko'chirish
+                                    </button>
+                                    <form method="POST" action="{% url 'delete-thread' thread.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger"
+                                                style="float:left; margin-top: 9px;">O'chirish
+                                        </button>
+                                    </form>
+                                    {#                                    <a href="http://127.0.0.1:8000/thread/{{ thread.id }}" target="_blank"><i#}
+                                    {#                                            class="fa-solid fa-square-arrow-up-right"#}
+                                    {#                                            style="font-size: 29px; float:left; color:#e52c2c; margin-top: 9px; margin-right:9px;"></i></a>#}
+                                    {#                                    <a href="https://t.me/AlijahonBot?start=order_78812" target="_blank"><i#}
+                                    {#                                            class="fa-brands fa-telegram"#}
+                                    {#                                            style="font-size: 29px; float:left; color:#e52c2c; margin-top: 9px;"></i></a>#}
+                                    {##}
+                                    {#                                    <button class="btn btn-primary btn_open_modal" type="button" data-bs-toggle="modal"#}
+                                    {#                                            style="float:left; margin-right:9px; margin-left: 9px; margin-top: 9px;"#}
+                                    {#                                            data-bs-target="#exampleModal" name="78812">#}
+                                    {#                                        csv#}
+                                    {#                                    </button>#}
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const copyButtons = document.querySelectorAll(".copy_ref_bn");
+
+            copyButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const inputField = this.parentElement.querySelector(".copy-input");
+                    inputField.select();
+                    inputField.setSelectionRange(0, 99999); // Ba'zi brauzerlar uchun qo'llab-quvvatlash
+                    navigator.clipboard.writeText(inputField.value)
+                        .catch(err => {
+                            console.error("Nusxa olishda xato: ", err);
+                        });
+                });
+            });
+        });
+    </script>
+
+
+{% endblock %}

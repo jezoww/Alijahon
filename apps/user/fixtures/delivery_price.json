@@ -1,0 +1,114 @@
+[
+  {
+    "model": "user.deliveryprice",
+    "pk": 1,
+    "fields": {
+      "region": 1,
+      "price": 10000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 2,
+    "fields": {
+      "region": 2,
+      "price": 12000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 3,
+    "fields": {
+      "region": 3,
+      "price": 25000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 4,
+    "fields": {
+      "region": 4,
+      "price": 45000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 5,
+    "fields": {
+      "region": 5,
+      "price": 7000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 6,
+    "fields": {
+      "region": 6,
+      "price": 9000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 7,
+    "fields": {
+      "region": 7,
+      "price": 25000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 8,
+    "fields": {
+      "region": 8,
+      "price": 12000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 9,
+    "fields": {
+      "region": 9,
+      "price": 47000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 10,
+    "fields": {
+      "region": 10,
+      "price": 95000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 11,
+    "fields": {
+      "region": 11,
+      "price": 3000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 12,
+    "fields": {
+      "region": 12,
+      "price": 15000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 13,
+    "fields": {
+      "region": 13,
+      "price": 9000
+    }
+  },
+  {
+    "model": "user.deliveryprice",
+    "pk": 14,
+    "fields": {
+      "region": 14,
+      "price": 0
+    }
+  }
+]

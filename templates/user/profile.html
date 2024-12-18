@@ -1,0 +1,190 @@
+{% extends 'base_include/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block main %}
+    <div class="row g-0">
+        <div class="col-lg-8 pe-lg-2">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Sozlamalar</h5>
+                </div>
+                {% if messages %}
+                    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+                        {% for message in messages %}
+                            <div class="toast align-items-center text-bg-{{ message.tags }} border-0 shadow-lg"
+                                 role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true">
+                                <div class="d-flex">
+                                    <div class="toast-body">
+                                        {{ message }}
+                                    </div>
+                                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
+                                            aria-label="Close"></button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="card-body bg-light">
+
+                    <form class="row g-3" method="post">
+                        {% csrf_token %}
+                        <div class="col-lg-6">
+                            Ismi
+                            <input {% if profile.first_name %}
+                                value="{{ profile.first_name }}"
+                            {% endif %}  type="text" name="first_name" class="form-control"
+                                maxlength="30" id="id_first_name">
+
+                        </div>
+
+                        <div class="col-lg-6">
+                            Familiya
+                            <input {% if profile.last_name %}
+                                value="{{ profile.last_name }}"
+                            {% endif %}  type="text" name="last_name" class="form-control"
+                                maxlength="40" id="id_last_name">
+
+                        </div>
+
+                        <div class="col-lg-6">
+                            Viloyat
+                            <select name="region" class="form-control" id="id_region">
+                                <option value="">Viloyatni tanlang</option>
+                                {% for region in regions %}
+                                    <option value="{{ region.name }}" {% if profile.district.region.id == region.id %}
+                                            selected {% endif %}>{{ region.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+
+                        <div class="col-lg-6">
+                            Shahar/Tuman
+                            <select class="form-control" name="district" id="id_district">
+                                <option value="">Shahar/Tuman tanlang</option>
+                                {#                                {% for district in districts %}#}
+                                {#                                    <option value="{{ district.id }}" {% if profile.district.id == district.id %}#}
+                                {#                                            selected {% endif %}>#}
+                                {#                                        {{ district.name }}#}
+                                {#                                    </option>#}
+                                {##}
+                                {#                                {% endfor %}#}
+                            </select>
+
+                        </div>
+
+                        <div class="col-lg-6">
+                            Manzil
+                            <input {% if profile.additional_info_location %}
+                                value="{{ profile.additional_info_location }}"
+                            {% endif %}  type="text" name="additional_info_location" class="form-control"
+                                maxlength="300" id="id_location">
+
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end">
+                            <button class="btn btn-primary" type="submit">Saqlash</button>
+                        </div>
+
+                    </form>
+                    <p class="mt-2 text-muted">Sizning hisobingizda: <strong>{{ profile.user.money|intcomma }}
+                        so'm</strong> pul bor</p>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-lg-4 ps-lg-2">
+            <div class="sticky-sidebar">
+
+
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Parolni o'zgartirish</h5>
+                    </div>
+                    <div class="card-body bg-light">
+                        <form method="post" action="{% url 'change_password' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label" for="old-password">Oldingi parol</label>
+                                <input name="password" class="form-control" id="old-password" type="password">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="new-password">Yangi parol</label>
+                                <input name="new_password" class="form-control" id="new-password" type="password">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="confirm-password">Yangi parolni
+                                    takrorlash</label>
+                                <input name="confirm_new_password" class="form-control" id="confirm-password"
+                                       type="password">
+                            </div>
+                            <button class="btn btn-primary d-block w-100" type="submit">Parolni yangilash
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var districtSelect = $("#id_district");  // Tumanning select elementi
+            var regionSelect = $("#id_region");  // Viloyat select elementi
+            var selectedDistrictId = "{{ profile.district.id }}";  // Eski tuman ID
+            var selectedRegion = regionSelect.val();  // Eski viloyat qiymati
+
+            // Boshlang‘ich holatda districtni bloklash
+            if (!selectedRegion) {
+                districtSelect.prop('disabled', true);
+            }
+
+            // Tumanlarni yuklash funksiyasi
+            function loadDistricts(regionName) {
+                $.ajax({
+                    url: "{% url 'get_districts' %}",  // Django view URL
+                    data: {'region': regionName},
+                    dataType: 'json',
+                    success: function (data) {
+                        districtSelect.empty();  // Tozalash
+                        districtSelect.append('<option value="">Shahar/Tuman tanlang</option>');
+
+                        // Yangi tumanlarni yuklash
+                        data.districts.forEach(function (district) {
+                            var isSelected = district.id == selectedDistrictId ? "selected" : "";
+                            districtSelect.append(
+                                '<option value="' + district.id + '" ' + isSelected + '>'
+                                + district.name + '</option>'
+                            );
+                        });
+
+                        districtSelect.prop('disabled', false);  // Aktivlashtirish
+                    }
+                });
+            }
+
+            // Viloyat tanlanganda
+            regionSelect.change(function () {
+                var regionName = $(this).val();  // Tanlangan viloyat nomi
+                if (regionName) {
+                    loadDistricts(regionName);  // Tumanlarni yuklash
+                } else {
+                    // Bo‘sh tanlanganda tuman select'ini bloklash
+                    districtSelect.empty().append('<option value="">Shahar/Tuman tanlang</option>');
+                    districtSelect.prop('disabled', true);
+                }
+            });
+
+            // Eski viloyat mavjud bo'lsa, tumanlarni yuklash
+            if (selectedRegion) {
+                loadDistricts(selectedRegion);
+            }
+        });
+    </script>
+
+
+
+
+{% endblock %}
