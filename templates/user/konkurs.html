@@ -1,80 +1,154 @@
 {% extends 'base_include/base.html' %}
+{% load static %}
 {% block main %}
-    <div class="card-group mt-2">
-        <div class="card overflow-hidden">
-            <div class="card-img-top"><img class="img-fluid" src="https://alijahon.uz/media/competition/IMG_5345.jpeg"
-                                           alt="Konkurs"></div>
-            <div class="card-body">
-                <h3 class="card-title">Alijahon.uz</h3>
-                <p class="card-text"></p>
-                <p>Alijahon.uz sayti navbatdagi konkursiga<br>
-                    Start berad hammaga omad !!</p>
-                <p></p>
-                <div class="row light">
-                    <div class="col-6 col-sm-6 col-lg-4 mb-4">
-                        <div class="card text-white bg-info">
-                            <div class="card-body">
-                                <div class="card-title">Boshlash</div>
-                                <p class="card-text">20-Sentabr, 2024-yil</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-sm-6 col-lg-4 mb-4">
-                        <div class="card text-white bg-danger">
-                            <div class="card-body">
-                                <div class="card-title">Yakunlash</div>
-                                <p class="card-text">20-Mart, 2025-yil</p>
-                            </div>
-                        </div>
-                    </div>
+    <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
+        <ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
+            <li class="nav-item">
+                <div class="theme-control-toggle fa-icon-wait px-2">
+                    <input class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle"
+                           type="checkbox" data-theme-control="theme" value="dark"/>
+                    <label class="mb-0 theme-control-toggle-label theme-control-toggle-light"
+                           for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
+                           title="Switch to light theme"><span class="fas fa-sun fs-0"></span></label>
+                    <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark"
+                           for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
+                           title="Switch to dark theme"><span class="fas fa-moon fs-0"></span></label>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-header">
-            <div class="row flex-between-end">
-                <div class="col-auto align-self-center">
-                    <h5 class="mb-0" data-anchor="data-anchor" id="table-example">Konkurs natijalari<a
-                            class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="#" href="#table-example"
-                            style="padding-left: 0.375em;"></a></h5>
-                </div>
-            </div>
-        </div>
-        <div class="card-body pt-0">
-            <div class="tab-content">
-                <div class="tab-pane preview-tab-pane active" role="tabpanel"
-                     aria-labelledby="tab-dom-316cb649-6a3e-4ec3-9de8-7d83e880873f"
-                     id="dom-316cb649-6a3e-4ec3-9de8-7d83e880873f">
-                    <div id="tableExample"
-                         data-list="{&quot;valueNames&quot;:[&quot;name&quot;,&quot;email&quot;,&quot;age&quot;],&quot;page&quot;:10,&quot;pagination&quot;:true}">
-                        <div class="table-responsive scrollbar">
-                            <table class="table table-bordered table-striped fs--1 mb-0">
-                                <thead class="bg-200 text-900">
-                                <tr>
-                                    <th class="sort" data-sort="name">№</th>
-                                    <th class="sort" data-sort="email">Sotuvchi</th>
-                                    <th class="sort" data-sort="age">Sotilgan</th>
-                                </tr>
-                                </thead>
-                                <tbody class="list">
+            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    {% if cart_items_count != 0 %}
+                        <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                            <span
+                                    class="notification-indicator-number">{{ cart_items_count }}</span>
+                        </a>
+                    {% else %}
+                        <a class="nav-link px-0 fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                        </a>
+                    {% endif %}
+                </li>
+            {% endif %}
+            <li class="nav-item dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
+                                             role="button" data-bs-toggle="dropdown" aria-haspopup="true"
+                                             aria-expanded="false">
+                <div class="avatar avatar-xl">
+                    <img class="rounded-circle" src="{% static "assets/img/team/avatar.png" %}" alt=""/>
 
-                                {% for seller in sellers %}
+                </div>
+            </a>
+                <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="navbarDropdownUser">
+                    <div class="bg-white dark__bg-1000 rounded-2 py-2">
+                        <div class="dropdown-divider"></div>
+                        {% if user.is_authenticated %}
+                            <a class="dropdown-item" href="{% url 'profile' user.id %}">Profil</a>
+                            <a class="dropdown-item"
+                               href="{% url 'logout' %}">Chiqish</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'login' %}">Kirish</a>
+                            <a class="dropdown-item"
+                               href="{% url 'register' %}">Ro'yxatdan o'tish</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    {% if competition == "Soon" %}
+        <h1>Tez kunda ...</h1>
+    {% else %}
+        <div class="card-group mt-2">
+            <div class="card overflow-hidden">
+                <div class="card-img-top"><img class="img-fluid"
+                                               src="{{ competition.image.url }}"
+                                               alt="Konkurs"></div>
+                <div class="card-body">
+                    <h3 class="card-title">Jezow</h3>
+                    <p class="card-text"></p>
+                    <p>{{ competition.description }}</p>
+                    <p></p>
+                    <div class="row light">
+                        <div class="col-6 col-sm-6 col-lg-4 mb-4">
+                            <div class="card text-white bg-info">
+                                <div class="card-body">
+                                    <div class="card-title">Boshlash</div>
+                                    <p class="card-text">{{ competition.start_at }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-6 col-lg-4 mb-4">
+                            <div class="card text-white bg-danger">
+                                <div class="card-body">
+                                    <div class="card-title">Yakunlash</div>
+                                    <p class="card-text">{{ competition.end_at }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header">
+                <div class="row flex-between-end">
+                    <div class="col-auto align-self-center">
+                        <h5 class="mb-0" data-anchor="data-anchor" id="table-example">Konkurs natijalari<a
+                                class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="#" href="#table-example"
+                                style="padding-left: 0.375em;"></a></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <div class="tab-content">
+                    <div class="tab-pane preview-tab-pane active" role="tabpanel"
+                         aria-labelledby="tab-dom-316cb649-6a3e-4ec3-9de8-7d83e880873f"
+                         id="dom-316cb649-6a3e-4ec3-9de8-7d83e880873f">
+                        <div id="tableExample"
+                             data-list="{&quot;valueNames&quot;:[&quot;name&quot;,&quot;email&quot;,&quot;age&quot;],&quot;page&quot;:10,&quot;pagination&quot;:true}">
+                            <div class="table-responsive scrollbar">
+                                <table class="table table-bordered table-striped fs--1 mb-0">
+                                    <thead class="bg-200 text-900">
                                     <tr>
-                                        <td class="name">1</td>
-                                        <td class="email">{{ seller.first_name }} {{ seller.last_name }}</td>
-                                        <td class="age">{{ seller.sold_products }}</td>
+                                        <th class="sort" data-sort="name">№</th>
+                                        <th class="sort" data-sort="email">Sotuvchi</th>
+                                        <th class="sort" data-sort="age">Sotilgan</th>
                                     </tr>
-                                {% endfor %}
+                                    </thead>
+                                    <tbody class="list">
+                                    {% for user in users %}
+                                        {% if request.user.is_authenticated and user.id == request.user.id %}
+                                            <tr>
+                                                <td class="name"><b>{{ forloop.counter }}</b></td>
+                                                <td class="email">{% if user.profile.first_name %}
+                                                    <b>{{ user.profile.first_name }}</b>{% endif %}
+                                                    {% if user.profile.last_name %}
+                                                        <b>{{ user.profile.last_name }}</b>{% endif %} </td>
+                                                <td class="age"><b>{{ user.total_sold }}</b></td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td class="name">{{ forloop.counter }}</td>
+                                                <td class="email">{% if user.profile.first_name %}
+                                                    {{ user.profile.first_name }}{% endif %}
+                                                    {% if user.profile.last_name %}
+                                                        {{ user.profile.last_name }}{% endif %} </td>
+                                                <td class="age">{{ user.total_sold }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
 
-
-                                </tbody>
-                            </table>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}

@@ -12,6 +12,8 @@ class BaseSlug(Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+            while Product.objects.filter(slug=self.slug).exists():
+                self.slug = self.slug + "1"
         return super().save(*args, **kwargs)
 
 
@@ -29,7 +31,6 @@ class Product(BaseSlug):
     description = CharField(max_length=512)
     price = PositiveIntegerField()
     category = ForeignKey(Category, on_delete=CASCADE, related_name='products')
-    owner = ForeignKey('user.Seller', on_delete=CASCADE, related_name='products')
     seller_price = IntegerField(default=0)
     quantity = PositiveIntegerField(default=1)
 

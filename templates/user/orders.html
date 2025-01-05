@@ -1,5 +1,6 @@
 {% extends 'base_include/base.html' %}
 {% load static %}
+{% load humanize %}
 {% block main %}
     <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
 
@@ -29,12 +30,21 @@
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
-                       href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
-                                                     data-fa-transform="shrink-7"
-                                                     style="font-size: 33px;"></span><span
-                            class="notification-indicator-number">1</span></a>
-
+                    {% if cart_items_count != 0 %}
+                        <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                            <span
+                                    class="notification-indicator-number">{{ cart_items_count }}</span>
+                        </a>
+                    {% else %}
+                        <a class="nav-link px-0 fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                        </a>
+                    {% endif %}
                 </li>
             {% endif %}
             <li class="nav-item dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
@@ -82,7 +92,13 @@
                     <div class="col-md-4 text-center">
                         <h6 class="text-secondary">Order Time:</h6>
                         <p class="text-dark mb-2">{{ order.created_at }}</p>
-                        <span class="badge bg-success">{{ order.status }}</span>
+                        {% if order.status == "Canceled" %}
+                            <span class="badge bg-danger">{{ order.status }}</span>
+                        {% elif order.status == "In process" %}
+                            <span class="badge bg-warning">{{ order.status }}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{ order.status }}</span>
+                        {% endif %}
                     </div>
                     <div class="col-md-4 text-center">
                         <h6 class="text-secondary">Order Status:</h6>
@@ -90,24 +106,80 @@
                     </div>
                     <div class="col-md-4 text-center">
                         <h6 class="text-secondary">Total Price:</h6>
-                        <p class="text-dark fw-bold">{{ order.total }} UZS</p>
+                        <p class="text-dark fw-bold">{{ order.total|intcomma }} UZS</p>
                     </div>
                 </div>
                 <hr>
                 <div class="text-center">
-                    <button class="btn btn-outline-primary btn-sm">View Details</button>
-                    {% if order.status == 'In process' %}
+                    <!-- Modal uchun HTML -->
+                    <div class="modal fade" id="orderDetailsModal" tabindex="-1"
+                         aria-labelledby="orderDetailsModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="modalOrderDetails">
+                                        <!-- JavaScript orqali ma'lumotlar qo'shiladi -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Details Tugmasi -->
+                    <button class="btn btn-outline-primary btn-sm" onclick="showOrderDetails({{ order.id }})"
+                            data-bs-toggle="modal"
+                            data-bs-target="#orderDetailsModal">
+                        View Details
+                    </button>
+                    {% if order.status == 'in process' %}
                         <a href="{% url 'cancel-order' order.id %}">
                             <button class="btn btn-outline-danger btn-sm">Cancel Order</button>
-                        </a>
-                        <form action="{% url 'cancel-order' order.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success btn-sm">Delivered</button>
-                        </form>
+                        </a>    
                     {% endif %}
                 </div>
             </div>
         </div>
     {% endfor %}
+    <script>
+        function showOrderDetails(orderId) {
+            // Ajax orqali buyurtma ma'lumotlarini olib kelish
+            fetch(`/get-order-details/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const modalBody = document.getElementById('modalOrderDetails');
+                    modalBody.innerHTML = ''; // Modalni tozalash
 
+                    data.products.forEach(product => {
+                        const row = `<tr>
+                    <td>${product.name}</td>
+                    <td>${product.quantity}</td>
+                    <td>${product.price} UZS</td>
+                    <td>${product.total} UZS</td>
+                </tr>`;
+                        modalBody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching order details:', error));
+        }
+    </script>
 {% endblock %}

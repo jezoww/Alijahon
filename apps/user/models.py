@@ -42,6 +42,8 @@ class User(AbstractUser):
     money = BigIntegerField(default=0)
 
     USERNAME_FIELD = 'phone'
+    def __str__(self):
+        return str(self.money)
 
 
 class Profile(Model):
@@ -75,13 +77,16 @@ class AboutCart(Model):
 
 class Order(Model):
     class ORDERSTATUSCHOICE(TextChoices):
-        in_process = "In process", "In process"
-        canceled = "Canceled", "Canceled"
-        delivered = "Delivered", "Delivered"
+        in_process = "In process", "in process"
+        canceled = "Canceled", "canceled"
+        delivered = "Delivered", "delivered"
+        delivering = "Delivering", 'delivering'
 
     user = ForeignKey(User, on_delete=CASCADE, related_name='orders')
-    status = CharField(choices=ORDERSTATUSCHOICE.choices, max_length=100, default="In process")
+    status = CharField(choices=ORDERSTATUSCHOICE.choices, max_length=100, default="in process")
     created_at = DateTimeField(auto_now_add=True)
+    shipping_price = IntegerField()
+    location = CharField(max_length=512)
 
     def save(self, *args, **kwargs):
         if self.status == "Delivered":
@@ -120,15 +125,6 @@ class District(Model):
     region = ForeignKey('Region', on_delete=CASCADE, related_name='districts')
 
 
-class Seller(Model):
-    first_name = CharField(max_length=255, null=False, blank=False)
-    last_name = CharField(max_length=255, null=False, blank=False)
-    phone = PhoneNumberField(region='UZ', unique=True, null=False, blank=False)
-    passport_number = CharField(max_length=300, unique=True, null=False, blank=False)
-    jshshir = CharField(max_length=50, unique=True, null=False, blank=False)
-    password = TextField(null=False, blank=False)
-
-
 class DeliveryPrice(Model):
     region = OneToOneField(Region, on_delete=CASCADE, related_name='price')
     price = DecimalField(max_digits=12, decimal_places=2)
@@ -141,3 +137,37 @@ class Thread(Model):
     discount = IntegerField(default=0)
     created_at = DateTimeField(auto_now_add=True)
     sold = IntegerField(default=0)
+    delivering = IntegerField(default=0)
+    canceled = IntegerField(default=0)
+
+
+class VisitedIpAddresses(Model):
+    thread = ForeignKey(Thread, CASCADE, related_name="IPs")
+    ip = CharField(max_length=128)
+
+
+class BlockedIp(Model):
+    ip = CharField(max_length=255)
+
+
+class Competition(Model):
+    image = ImageField(upload_to='konkurs/')
+    start_at = DateField()
+    end_at = DateField()
+    description = TextField()
+
+
+class Withdraw(Model):
+    class STATUSCHOICE(TextChoices):
+        waiting = "waiting", "Waiting"
+        Paid = "paid", "Paid"
+        canceled = "canceled", "Canceled"
+
+    user = ForeignKey(User, SET_NULL, related_name='withdraw_histories', null=True)
+    card_number = CharField(max_length=20)
+    owner_of_card = CharField(max_length=255)
+    amount = IntegerField()
+    created_at = DateTimeField(auto_now_add=True)
+    status = CharField(max_length=50, choices=STATUSCHOICE.choices, default='waiting')
+    description = TextField(null=True, blank=True)
+    image = ImageField(upload_to='check/', null=True, blank=True)

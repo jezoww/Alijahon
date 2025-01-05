@@ -6,20 +6,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-
-    <!-- ===============================================-->
-    <!--    Document Title-->
-    <!-- ===============================================-->
-    <title>Falcon | Dashboard &amp; Web App Template</title>
-
-
-    <!-- ===============================================-->
-    <!--    Favicons-->
-    <!-- ===============================================-->
+    
+    <title>Jezow</title>
+    
     <link rel="apple-touch-icon" sizes="180x180" href="{% static "assets/img/favicons/apple-touch-icon.png" %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static "assets/img/favicons/favicon-32x32.png" %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static "assets/img/favicons/favicon-16x16.png" %}">
+    <link rel="icon" type="image/jpg" sizes="32x32" href="{% static "logo/logo.jpg" %}">
     <link rel="shortcut icon" type="image/x-icon" href="{% static "assets/img/favicons/favicon.ico" %}">
     <link rel="manifest" href="{% static "assets/img/favicons/manifest.json" %}">
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
@@ -137,6 +128,52 @@
         }
 
     </style>
+    <style>
+        .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.pagination-list {
+    list-style: none;
+    display: flex;
+    padding: 0;
+}
+
+.pagination-list li {
+    margin: 0 5px;
+}
+
+.pagination-list a, .pagination-list span {
+    display: inline-block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.pagination-list a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination-list .active span {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination-list .disabled span {
+    color: #ccc;
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+    </style>
 </head>
 
 
@@ -172,8 +209,9 @@
                 </div>
                 <a class="navbar-brand" href="">
                     <div class="d-flex align-items-center py-3"><img class="me-2"
-                                                                     src="{% static "assets/img/icons/spot-illustrations/falcon.png" %}"
-                                                                     alt="" width="40"/><span class="font-sans-serif">falcon</span>
+                                                                     style="border-radius: 50px"
+                                                                     src="{% static "logo/logo.jpg" %}"
+                                                                     alt="" width="40"/><span class="font-sans-serif">jezow</span>
                     </div>
                 </a>
             </div>
@@ -214,7 +252,7 @@
                             </a>
 
 
-                            <a class="nav-link" href="" role="button" aria-expanded="false">
+                            <a class="nav-link" href="{% url 'statistic' %}" role="button" aria-expanded="false">
                                 <div class="d-flex align-items-center"><span
                                         class="nav-link-text ps-1">Statistika</span>
                                 </div>
@@ -225,7 +263,21 @@
                                 <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Konkurs</span>
                                 </div>
                             </a>
-
+                            <hr class="mb-0 navbar-vertical-divider">
+                            <a class="nav-link" href="{% url 'withdraw' %}" role="button" aria-expanded="false">
+                                <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Withdraw</span>
+                                </div>
+                            </a>
+                            {% if request.user.is_superuser %}
+                                <hr class="mb-0 navbar-vertical-divider">
+                                <a class="nav-link" href="{% url 'operator' %}" role="button"
+                                   aria-expanded="false">
+                                    <div class="d-flex align-items-center"><span
+                                            class="nav-link-text ps-1">Operator</span>
+                                    </div>
+                                </a>
+                                
+                            {% endif %}
                     </ul>
 
                 </div>
@@ -383,25 +435,6 @@
     });
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        let toastElements = document.querySelectorAll('.toast');
-        toastElements.forEach(toastEl => {
-            let toast = new bootstrap.Toast(toastEl);
-            toast.show();
-        });
-
-        // Toastlarni avtomatik ravishda 2 sekunddan keyin yo'qotish
-        setTimeout(function () {
-            toastElements.forEach(toastEl => {
-                let toastInstance = bootstrap.Toast.getInstance(toastEl);
-                if (toastInstance) {
-                    toastInstance.hide();
-                }
-            });
-        }, 2000); // 2 sekund
-    });
-</script>
 </body>
 
 </html>

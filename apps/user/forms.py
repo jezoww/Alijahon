@@ -2,11 +2,11 @@ from itertools import product
 
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
-from django.forms import Form, ModelForm, CharField, PasswordInput
+from django.forms import Form, ModelForm, CharField, PasswordInput, ImageField
 from phonenumber_field.formfields import PhoneNumberField
 
 from apps.product.models import Product
-from apps.user.models import User, Region, District, Profile, Thread
+from apps.user.models import User, Region, District, Profile, Thread, Withdraw
 
 
 class RegisterModelForm(ModelForm):
@@ -41,19 +41,19 @@ class LoginForm(Form):
 class ProfileModelForm(ModelForm):
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name', 'district', 'additional_info_location']
+        fields = ['first_name', 'last_name', 'additional_info_location']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = False
 
-    def clean_district(self):
-        district = self.data.get('district')
-        if district:
-            if not District.objects.filter(id=int(district)).exists():
-                raise ValidationError('Something went wrong!')
-        return district
+    # def clean_district(self):
+    #     district = self.data.get('district')
+    #     if district:
+    #         if not District.objects.filter(id=int(district)).exists():
+    #             raise ValidationError('Something went wrong!')
+    #     return district
 
 
 class ChangePasswordForm(Form):
@@ -72,7 +72,7 @@ class ChangePasswordForm(Form):
 class ThreadModelForm(ModelForm):
     class Meta:
         model = Thread
-        exclude = 'created_at', 'user', 'sold'
+        exclude = 'created_at', 'user', 'sold', 'delivering', 'canceled'
 
     def clean_discount(self):
         discount = self.cleaned_data.get('discount')
@@ -82,3 +82,22 @@ class ThreadModelForm(ModelForm):
             raise ValidationError("Please enter less discount than the limit of product!")
         return discount
 
+
+class WithdrawModelForm(ModelForm):
+    class Meta:
+        model = Withdraw
+        exclude = 'user', 'created_at', 'status', 'description', 'image'
+
+    def __init__(self, *args, **kwargs):
+        is_update = kwargs.pop('is_update', False)
+        super().__init__(*args, **kwargs)
+
+        if is_update:
+            self.fields['description'] = CharField(required=False)
+            self.fields['image'] = ImageField(required=False)
+
+    def clean_card_number(self):
+        card = self.cleaned_data.get('card_number')
+        if len(card) != 16:
+            raise ValidationError("Please enter valid card number!")
+        return card

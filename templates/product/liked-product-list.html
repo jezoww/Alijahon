@@ -3,6 +3,131 @@
 {% load humanize %}
 
 {% block main %}
+    <style>
+        /* Kategoriya tugmalarining konteyneri */
+        .header_menu {
+            display: flex;
+            justify-content: center; /* O'rtada joylashadi */
+            gap: 13px; /* Minimal masofa */
+            padding: 10px 5px;
+            flex-wrap: wrap; /* Kichik ekranda joylashish */
+        }
+
+        /* Tugmalar dizayni */
+        .header_menu a {
+            color: #555;
+            background-color: #a7c7e7; /* Oq fon ustida yumshoq, qora fon ustida yorqin */
+        {#background-color: #ced4da; /* Kulrangga yaqin neytral rang */#} border: none; /* Minimal dizayn */
+            border-radius: 30px; /* Dumaloq tugma */
+            padding: 8px 18px; /* Tugma hajmi */
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hover effekti */
+        .header_menu a:hover {
+            background-color: #007bff;
+            color: #fff;
+            transform: scale(1.1); /* Kattalashish */
+            box-shadow: 0px 5px 15px rgba(0, 123, 255, 0.4); /* Yorqin soyalar */
+        }
+
+        /* Active tugma */
+        .header_menu a.active {
+            background-color: #0056b3; /* Quyuq ko'k fon */
+            color: #fff;
+            box-shadow: 0px 4px 12px rgba(0, 86, 179, 0.6); /* Kattaroq soyalar */
+            transform: scale(1.15); /* Katta ko'rinish */
+        }
+
+        /* Animatsion effektlar */
+        .header_menu a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
+            z-index: 1;
+            transition: left 0.5s ease-in-out;
+        }
+
+        .header_menu a:hover::before {
+            left: 100%; /* Hover effekti */
+        }
+
+        .header_menu a span {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Tugma asosiy dizayni */
+        .btn-add-to-cart {
+            background-color: #007bff; /* Tugma ko'k rangda */
+            color: #fff; /* Matn oq rangda */
+            font-weight: bold;
+            border: none;
+            border-radius: 6px; /* Yumaloq burchaklar */
+            padding: 12px 20px; /* Tugma ichki bo'sh joyi */
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            width: 100%; /* Tugma to'liq kenglikda */
+            max-width: 250px; /* Maksimal kenglik */
+        }
+
+        /* Hover effekti */
+        .btn-add-to-cart:hover {
+            background-color: #0056b3; /* Hover qilinganda quyuqroq ko'k */
+            transform: scale(1.05); /* Tugma kattalashadi */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Yumshoq soya */
+        }
+
+        /* Disabled tugma */
+        .btn-add-to-cart.disabled {
+            background-color: #e0e0e0; /* Kulrang */
+            color: #999999;
+            pointer-events: none; /* Bosilmaslik holati */
+        }
+
+        /* Media Queries: Telefon va kichik ekranlar uchun */
+        @media (max-width: 768px) {
+            .product-container {
+                gap: 10px; /* Kartalar orasidagi masofa kichrayadi */
+            }
+
+            .product-card {
+                width: 90%; /* Telefon uchun kenglikni moslashtirish */
+                max-width: 280px; /* Maksimal kenglik */
+                margin: 10px auto; /* Markazlash */
+            }
+
+            .btn-add-to-cart {
+                font-size: 13px; /* Kichikroq matn hajmi */
+                padding: 10px 15px; /* Ichki bo'sh joyni kamaytirish */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-card {
+                width: 100%; /* Eng kichik ekran uchun to'liq kenglik */
+                max-width: 100%; /* Maksimal kenglik cheklovini olib tashlash */
+            }
+
+            .btn-add-to-cart {
+                font-size: 12px;
+                padding: 8px 10px; /* Kichik ichki bo'sh joy */
+            }
+        }
+
+    </style>
+
+
     <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
 
         <button class="btn navbar-toggler-humburger-icon navbar-toggler me-1 me-sm-3" type="button"
@@ -43,14 +168,24 @@
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
-                       href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
-                                                     data-fa-transform="shrink-7"
-                                                     style="font-size: 33px;"></span><span
-                            class="notification-indicator-number">1</span></a>
-
+                    {% if cart_items_count != 0 %}
+                        <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                            <span
+                                    class="notification-indicator-number">{{ cart_items_count }}</span>
+                        </a>
+                    {% else %}
+                        <a class="nav-link px-0 fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                        </a>
+                    {% endif %}
                 </li>
             {% endif %}
+        
             <li class="nav-item dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
                                              role="button" data-bs-toggle="dropdown" aria-haspopup="true"
                                              aria-expanded="false">
@@ -91,14 +226,15 @@
             <div class="content_grid">
                 <div class="row">
                     {% for product in products %}
-                        <div class="col-6 mb-3 col-md-6 col-lg-4">
+                        <div class="product-card col-6 mb-3 col-md-6 col-lg-4">
                             <div class="border rounded-1 d-flex flex-column justify-content-between pb-3">
                                 <div class="overflow-hidden">
                                     <div class="position-relative rounded-top overflow-hidden">
                                         <a class="d-block" href="{% url 'product-detail' product.slug %}">
                                             {% with product.images.first as image %}
                                                 {% if image %}
-                                                    <img class="img-fluid rounded-top" src="{{ image.image.url }}"
+                                                    <img style="width: 1000px; height: 370px"
+                                                         class="img-fluid rounded-top" src="{{ image.image.url }}"
                                                          alt="">
                                                 {% else %}
                                                     <p>No image available for this product.</p>
@@ -116,6 +252,7 @@
                                         <h5 class="fs-md-2 text-warning mb-0 d-flex align-items-center mb-2"> {{ product.price|floatformat:0|intcomma }}
                                             <!-- <del class="ms-2 fs--1 text-500">180 000 so'm </del> -->
                                         </h5>
+                                        <p class="mt-2 text-muted">{{ product.quantity }} ta qoldi.</p>
                                         <p></p>
                                     </div>
                                 </div>
@@ -131,22 +268,43 @@
                                         </button>
 
                                     </div>
-                                    <div>
-                                        <a class="btn btn-sm btn-falcon-default d-flex align-items-center justify-content-center"
-                                           style="width: 130px; height: 50px;"
-                                           href="{% url 'add-to-cart' product.slug %}?page={{ request.path }}"
-                                           data-bs-toggle="tooltip" data-bs-placement="top" title=""
-                                           data-bs-original-title="Add to Cart" aria-label="Add to Cart">
-                                            <svg class="svg-inline--fa fa-cart-plus fa-w-18 me-2" aria-hidden="true"
-                                                 focusable="false" data-prefix="fas" data-icon="cart-plus" role="img"
-                                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
-                                                 data-fa-i2svg="">
-                                                <path fill="currentColor"
-                                                      d="..."></path>
-                                            </svg>
-                                            <span>Add to Cart</span>
-                                        </a>
-                                    </div>
+                                    {% if product.quantity != 0 %}
+                                        <div>
+                                            <a class="btn-add-to-cart btn btn-sm btn-falcon-default d-flex align-items-center justify-content-center"
+                                               style="width: 130px; height: 50px;"
+                                               href="{% url 'add-to-cart' product.slug %}?page={{ request.path }}"
+                                               data-bs-toggle="tooltip" data-bs-placement="top" title=""
+                                               data-bs-original-title="Add to Cart" aria-label="Add to Cart">
+                                                <svg class="svg-inline--fa fa-cart-plus fa-w-18 me-2" aria-hidden="true"
+                                                     focusable="false" data-prefix="fas" data-icon="cart-plus"
+                                                     role="img"
+                                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
+                                                     data-fa-i2svg="">
+                                                    <path fill="currentColor"
+                                                          d="..."></path>
+                                                </svg>
+                                                <span>Add to Cart</span>
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <div>
+                                            <a class="disabled btn btn-sm btn-falcon-default d-flex align-items-center justify-content-center"
+                                               style="width: 130px; height: 50px;"
+                                               href="{% url 'add-to-cart' product.slug %}?page={{ request.path }}"
+                                               data-bs-toggle="tooltip" data-bs-placement="top" title=""
+                                               data-bs-original-title="Add to Cart" aria-label="Add to Cart">
+                                                <svg class="svg-inline--fa fa-cart-plus fa-w-18 me-2" aria-hidden="true"
+                                                     focusable="false" data-prefix="fas" data-icon="cart-plus"
+                                                     role="img"
+                                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
+                                                     data-fa-i2svg="">
+                                                    <path fill="currentColor"
+                                                          d="..."></path>
+                                                </svg>
+                                                <span>Add to Cart</span>
+                                            </a>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -154,5 +312,50 @@
                 </div>
             </div>
         </div>
+        <div class="pagination">
+            <ul class="pagination-list">
+                <!-- Previous Button -->
+                {% if page_obj.has_previous %}
+                    <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;</span></li>
+                {% endif %}
+
+                <!-- First Page -->
+                {% if page_obj.number > 3 %}
+                    <li><a href="?page=1">1</a></li>
+                    {% if page_obj.number > 4 %}
+                        <li><span>...</span></li>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Current and Surrounding Pages -->
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        {% if num == page_obj.number %}
+                            <li class="active"><span>{{ num }}</span></li>
+                        {% else %}
+                            <li><a href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Last Page -->
+                {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                        <li><span>...</span></li>
+                    {% endif %}
+                    <li><a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a></li>
+                {% endif %}
+
+                <!-- Next Button -->
+                {% if page_obj.has_next %}
+                    <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+        </div>
+
     </div>
 {% endblock %}

@@ -43,12 +43,21 @@
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
-                       href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
-                                                     data-fa-transform="shrink-7"
-                                                     style="font-size: 33px;"></span><span
-                            class="notification-indicator-number">{{ cart_items_count }}</span></a>
-
+                    {% if cart_items_count != 0 %}
+                        <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                            <span
+                                    class="notification-indicator-number">{{ cart_items_count }}</span>
+                        </a>
+                    {% else %}
+                        <a class="nav-link px-0 fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                        </a>
+                    {% endif %}
                 </li>
             {% endif %}
             <li class="nav-i`tem dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
@@ -136,9 +145,9 @@
                             <div class="col-sm-4 p-2">
                                 <div class="card">
                                     <a href="{% url "product-detail" product.slug %}" target="_blank">
-                                        {% with product.images.first as image %}
+                                        {% with product.images.all|first as image %}
                                             {% if image %}
-                                                <img class="card-img-top" src="{{ image.image.url }}"
+                                                <img style="width: 370px; height: 370px" class="card-img-top" src="{{ image.image.url }}"
                                                      alt="">
                                             {% else %}
                                                 <p>No image available for this product.</p>
@@ -147,12 +156,13 @@
                                     </a>
                                     <div class="card-body">
                                         <h5 class="card-title">
-                                            <a id="product_name" name="{{ product.id }}" href="" target="_blank"
+                                            <a id="product_name" name="{{ product.id }}" href="{% url 'product-detail' product.slug %}" target="_blank"
                                                style="color: red">
                                                 {{ product.name }}
                                             </a>
                                         </h5>
                                         <p class="text-muted"> {{ product.price|intcomma }} so'm </p>
+                                        <p class="mt-2 text-muted">{{ product.quantity }} ta qoldi.</p>
                                     </div>
 
                                     <ul class="list-group list-group-flush">
@@ -178,6 +188,50 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="pagination">
+            <ul class="pagination-list">
+                <!-- Previous Button -->
+                {% if page_obj.has_previous %}
+                    <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;</span></li>
+                {% endif %}
+
+                <!-- First Page -->
+                {% if page_obj.number > 3 %}
+                    <li><a href="?page=1">1</a></li>
+                    {% if page_obj.number > 4 %}
+                        <li><span>...</span></li>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Current and Surrounding Pages -->
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        {% if num == page_obj.number %}
+                            <li class="active"><span>{{ num }}</span></li>
+                        {% else %}
+                            <li><a href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Last Page -->
+                {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                        <li><span>...</span></li>
+                    {% endif %}
+                    <li><a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a></li>
+                {% endif %}
+
+                <!-- Next Button -->
+                {% if page_obj.has_next %}
+                    <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
         </div>
     </div>
     <script>

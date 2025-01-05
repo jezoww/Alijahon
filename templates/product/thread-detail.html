@@ -43,12 +43,21 @@
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
-                       href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
-                                                     data-fa-transform="shrink-7"
-                                                     style="font-size: 33px;"></span><span
-                            class="notification-indicator-number">1</span></a>
-
+                    {% if cart_items_count != 0 %}
+                        <a class="nav-link px-0 notification-indicator notification-indicator-warning notification-indicator-fill fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                            <span
+                                    class="notification-indicator-number">{{ cart_items_count }}</span>
+                        </a>
+                    {% else %}
+                        <a class="nav-link px-0 fa-icon-wait"
+                           href="{% url 'cart' %}"><span class="fas fa-shopping-cart"
+                                                         data-fa-transform="shrink-7"
+                                                         style="font-size: 33px;"></span>
+                        </a>
+                    {% endif %}
                 </li>
             {% endif %}
             <li class="nav-item dropdown"><a class="nav-link pe-0" id="navbarDropdownUser" href="#"
@@ -120,7 +129,7 @@
                 <span class="text-warning me-2">
                 {{ product.thread_price|intcomma }} so'm
                 </span>
-                
+
             </h4>
         </div>
         <div class="d-flex flex-between-center px-3">
