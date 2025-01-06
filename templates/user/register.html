@@ -1,0 +1,80 @@
+{% extends 'base_include/base.html' %}
+{% load static %}
+{% block main %}
+
+    <div class="content_auth_form">
+        <div class="content_auth_form_group">
+            <div class="content_auth_form_group_input">
+                <div class="card">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="card-header bg-circle-shape bg-shape text-center p-2"><a
+                                class="font-sans-serif fw-bolder fs-4 z-index-1 position-relative link-light light"
+                                href="/">Alijahon</a></div>
+                        {% if messages %}
+                            <div class="messages">
+                                {% for message in messages %}
+                                    <div class="message {{ message.tags }}">
+                                        {{ message }}
+                                        <span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="card-body p-4">
+                            <div class="row flex-between-center">
+                                <div class="col-auto">
+                                    <h3>Ro'yxatdan o'tish</h3>
+                                </div>
+                            </div>
+                            {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                        <li{% if message.tags %}
+                                            class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <label class="form-label" for="split-login-email">
+                                        Telefon nomer</label>
+                                </div>
+                                <input type="text" name="phone" id="phone-mask" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <label class="form-label" for="split-login-password">Parol</label>
+                                </div>
+                                <input class="form-control" name="password" id="split-login-password" type="password">
+                            </div>
+                            <div class="row flex-between-center">
+                                <div class="col-auto">
+                                    <div class="form-check mb-0">
+                                        <input name="rules" value="true" class="form-check-input" type="checkbox"
+                                               id="split-checkbox">
+                                        <label class="form-check-label mb-0" for="split-checkbox">
+                                            Men qoidalar bilan tanishdim</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto">
+                                    <a class="fs--1" href="{% url 'rules' %}">
+                                        Foydalanish shartlari
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">
+                                    Ro'yxatdan o'tish
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operator Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #0d1b2a;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            background-color: #1e6091;
+        }
+
+        .content {
+            margin-left: 260px;
+        }
+
+        .btn-primary {
+            background-color: #1e6091;
+            border-color: #1e6091;
+        }
+
+        .btn-primary:hover {
+            background-color: #144e75;
+            border-color: #144e75;
+        }
+
+        .btn-secondary {
+            background-color: #144e75;
+            border-color: #144e75;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0d3c57;
+            border-color: #0d3c57;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <h3 class="text-center">Bo'limlar</h3>
+    <a href="{% url 'operator' %}?order_status=all">Barchasi</a>
+    <a href="{% url 'operator' %}?order_status=delivered">Yetkazib berilgan buyurtmalar</a>
+    <a href="{% url 'operator' %}?order_status=delivering">Yetkazilayotgan burtmalar</a>
+    <a href="{% url 'operator' %}?order_status=in process">Yeg'ilayotgan buyurtmalar</a>
+    <a href="{% url 'operator' %}?order_status=canceled">Bekor qilingan buyurtmalar</a>
+    <a href="{% url 'admin-withdraw' %}">Withdraw</a>
+    <a href="{% url 'index' %}">Asosiy oyna</a>
+</div>
+
+<div class="content container mt-5">
+    <h1 class="text-center">Operator Panel</h1>
+
+    <div class="container mt-4">
+        <div class="row align-items-center mb-4">
+            <form method="GET" action="{% url 'operator' %}">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Qidiruv...">
+                    <button class="btn btn-primary" type="submit">Qidir</button>
+                </div>
+            </form>
+        </div>
+
+        <table class="table mt-4 text-white">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Buyurtma ID</th>
+                <th>Mijoz</th>
+                <th>Status</th>
+                <th>Manzil</th>
+                <th>Umumiy</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user.phone }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.location }}</td>
+                    <td>{{ order.total }}</td>
+                    <td>
+                        <!-- Statusni o'zgartirish tugmasi -->
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#updateStatusModal{{ order.id }}">Statusni o'zgartirish
+                        </button>
+
+                        <!-- Locationni o'zgartirish tugmasi -->
+                        {% if order.status == "in process" %}
+                        <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+                                data-bs-target="#updateLocationModal{{ order.id }}">Manzilni o'zgartirish
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Statusni o'zgartirish uchun modal -->
+                <div class="modal fade" id="updateStatusModal{{ order.id }}" tabindex="-1"
+                     aria-labelledby="updateStatusLabel{{ order.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateStatusLabel{{ order.id }}">Statusni o'zgartirish</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <form method="POST"
+                                  action="{% url 'change-status-order' order.id %}?order_status={{ order_status }}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <label for="status" class="form-label">Yangi Status</label>
+                                    <select name="status" id="status" class="form-select">
+                                        <option value="delivered">Delivered</option>
+                                        <option value="delivering">Delivering</option>
+                                        <option value="in process">In process</option>
+                                        <option value="canceled">Canceled</option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Saqlash</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Locationni o'zgartirish uchun modal -->
+                <div class="modal fade" id="updateLocationModal{{ order.id }}" tabindex="-1"
+                     aria-labelledby="updateLocationLabel{{ order.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateLocationLabel{{ order.id }}">Manzilni
+                                    o'zgartirish</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <form method="POST"
+                                  action="{% url 'change-location-order' order.id %}?order_status={{ order_status }}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <label for="location" class="form-label">Yangi Manzil</label>
+                                    <input type="text" name="location" id="location" class="form-control"
+                                           value="{{ order.location }}">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Saqlash</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
