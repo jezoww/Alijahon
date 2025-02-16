@@ -17,3 +17,10 @@ AliJahon:
     ===================================================
     statistic✅
     konkurs✅
+
+
+
+from apps.user.models import User, Cart, Profile
+user = User.objects.filter(phone='+998991111111').first()
+Cart.objects.create(user=user)
+Profile.objects.create(user=user)
